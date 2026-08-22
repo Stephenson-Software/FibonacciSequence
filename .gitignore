@@ -1,0 +1,8 @@
+# Build output.
+# Note: the tracked `fibonacci` binary is deliberately NOT listed here — an ignore entry
+# would not untrack it, and builds are directed to `fibonacci-build` instead.
+a.out
+*.o
+fibonacci-build
+fibonacci-check
+fibonacci-check-*
