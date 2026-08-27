@@ -1,0 +1,77 @@
+name: Build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Report the compiler
+        run: |
+          if ! command -v g++ > /dev/null; then
+            echo "::error::no C++ compiler on the runner; this workflow cannot verify anything"
+            exit 1
+          fi
+          g++ --version
+
+      # The command below is the one documented in README.md. The two must stay in step.
+      # It must never write to `fibonacci`, which is a tracked file.
+      - name: Build
+        run: g++ -std=c++17 -Wall -Wextra -o fibonacci-build fibonacci.cc
+
+      - name: Confirm the build did not modify a tracked file
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::the build left the working tree dirty"
+            git status --porcelain
+            exit 1
+          fi
+
+      # Characterization only: this step records what the program does, and asserts nothing.
+      # No expected output has been established yet, so nothing here can fail on a wrong value.
+      # Once the behavior below has been observed, a check script with real expectations can
+      # replace this step.
+      - name: Observe behavior at each boundary input
+        shell: bash
+        run: |
+          set +e
+
+          observe() {
+            echo "--- input: $1 ---"
+            printf '%s\n' "$1" | timeout 10 ./fibonacci-build \
+              > "$RUNNER_TEMP/out" 2> "$RUNNER_TEMP/err"
+            echo "exit status: $?"
+            echo "stdout ($(wc -l < "$RUNNER_TEMP/out") lines):"
+            head -60 "$RUNNER_TEMP/out"
+            echo "stderr ($(wc -c < "$RUNNER_TEMP/err") bytes):"
+            head -20 "$RUNNER_TEMP/err"
+            echo
+          }
+
+          observe 10
+          observe 2
+          observe 1
+          observe 0
+          observe -5
+          observe abc
+          observe 47
+
+          # 48 overflows the int accumulator. That is undefined behavior, so the output below
+          # is what this build produced on this runner and is not a value to rely on.
+          observe 48
+
+          echo "--- input: end-of-file ---"
+          timeout 10 ./fibonacci-build \
+            < /dev/null > "$RUNNER_TEMP/out" 2> "$RUNNER_TEMP/err"
+          echo "exit status: $?"
+          echo "stdout ($(wc -l < "$RUNNER_TEMP/out") lines):"
+          head -60 "$RUNNER_TEMP/out"
+          echo "stderr ($(wc -c < "$RUNNER_TEMP/err") bytes):"
+          head -20 "$RUNNER_TEMP/err"
