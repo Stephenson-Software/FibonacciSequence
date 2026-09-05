@@ -86,7 +86,7 @@ nothing at all was written to standard error, including for the inputs the progr
 | `48` | 50 | 48 | `-1323752223` |
 | end-of-file | 32766 (unstable, see below) | 32764 | not recorded |
 
-Three of those rows are worth reading twice:
+Several of those rows are worth reading twice:
 
 - **`1`, `0`, `-5`, and `abc` all print two numbers.** The seed values `0` and `1` are printed before
   the loop is entered and are not conditional on the count, so asking for fewer than two numbers —
