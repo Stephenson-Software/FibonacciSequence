@@ -84,7 +84,7 @@ nothing at all was written to standard error, including for the inputs the progr
 | `-5` | 4 | 2 | `1` |
 | `abc` | 4 | 2 | `1` |
 | `48` | 50 | 48 | `-1323752223` |
-| end-of-file | 32766 | 32764 | not recorded |
+| end-of-file | 32766 (unstable, see below) | 32764 | not recorded |
 
 Three of those rows are worth reading twice:
 
@@ -95,11 +95,14 @@ Three of those rows are worth reading twice:
   advertised ceiling of 47 overflows. That is undefined behavior rather than merely a wrong value,
   and `-1323752223` is what this one build on this one machine happened to produce. It is not a
   result to rely on.
-- **End-of-file printed tens of thousands of lines.** An earlier run of the same workflow,
+- **End-of-file printed tens of thousands of lines, and no two runs agree on how many.** Three runs
+  of the same workflow, over identical source, have printed three different counts: 32,769 lines in
   [32822432007](https://github.com/Stephenson-Software/FibonacciSequence/actions/runs/32822432007),
-  printed 32,769 lines for this input rather than 32,766. The count is never assigned when the
-  stream is already at end-of-file, so the loop bound comes from whatever occupied that storage —
-  which is why the two runs disagree.
+  32,766 in the run quoted above, and 32,768 in
+  [33972896983](https://github.com/Stephenson-Software/FibonacciSequence/actions/runs/33972896983).
+  The count is never assigned when the stream is already at end-of-file, so the loop bound comes
+  from whatever occupied that storage. None of these three figures is a property of the program, and
+  none of them bounds how much a future run might print.
 
 ## Committed binary
 
