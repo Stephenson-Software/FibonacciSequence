@@ -54,7 +54,8 @@ sh check.sh
 ```
 
 It needs only a POSIX shell, `timeout`, and a C++ compiler; without a compiler it prints `SKIP` and
-exits 0. The [Build workflow](.github/workflows/build.yml) runs it on every push and pull request.
+exits 0. The [Build workflow](.github/workflows/build.yml) runs it on every push to `master` and on
+every pull request.
 
 ## Example
 
