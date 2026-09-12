@@ -40,6 +40,23 @@ printf '10\n' | ./fibonacci-build
 Note that the program blocks waiting for input if standard input is a terminal and nothing is typed,
 so scripted invocations should always pipe a value in.
 
+## Checking
+
+`check.sh` compiles the program with the command above (to `fibonacci-check`, which `.gitignore`
+also covers) and asserts what it prints for each input in the [table below](#what-other-inputs-did)
+whose behavior is defined — `10`, `2`, `1`, `0`, `-5`, `abc`, and `47` — including the two-number
+output for counts below two, which is current behavior rather than intended behavior. The two
+undefined cases, `48` and end-of-file, are run and their output recorded but nothing is asserted
+about them.
+
+```sh
+sh check.sh
+```
+
+It needs only a POSIX shell, `timeout`, and a C++ compiler; without a compiler it prints `SKIP` and
+exits 0. The [Build workflow](.github/workflows/build.yml) runs it on every push to `master` and on
+every pull request.
+
 ## Example
 
 Everything in this section was captured from workflow run
